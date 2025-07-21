@@ -24,6 +24,7 @@ const boardReducer = (state, action) => {
         toolActionType: action.payload.actionType,
       };
     case BOARD_ACTIONS.DRAW_DOWN: {
+      
       let x1 = action.payload.clientX;
       let y1 = action.payload.clientY;
       
@@ -42,11 +43,14 @@ const boardReducer = (state, action) => {
       const prevElem = state.elements;
       return {
         ...state,
-        toolActionType: TOOL_ACTION_TYPES.DRAWING,
+        toolActionType: state.activeToolItem === TOOL_ITEMS.TEXT
+        ? TOOL_ACTION_TYPES.WRITING
+        : TOOL_ACTION_TYPES.DRAWING,
         elements: [...prevElem, newElement],
       };
     }
     case BOARD_ACTIONS.DRAW_MOVE: {
+     
       const { clientX, clientY } = action.payload;
       const newElement = [...state.elements];
       let lastelementIdx = newElement.length - 1;
@@ -84,6 +88,7 @@ const boardReducer = (state, action) => {
             ...state,
             elements: newElement,
           };
+         
       }
 
       // newElement[lastelementIdx] = createElements(state.elements.length,newElement[lastelementIdx].x1,newElement[lastelementIdx].y1,clientX,clientY,{type:state.activeToolItem,stroke,fill,size})
@@ -113,7 +118,21 @@ const boardReducer = (state, action) => {
         elements: newElements,
       };
     }
-
+    
+    case BOARD_ACTIONS.CHANGE_TEXT: {
+      const index = state.elements.length - 1;
+      
+      const newElements = [...state.elements];
+      newElements[index].text = action.payload.text;
+      
+      console.log("change text called");
+      return {
+        ...state,
+        toolActionType: TOOL_ACTION_TYPES.NONE,
+        elements: newElements,
+        index: state.index + 1,
+      };
+    }
 
     default:
       return state;
@@ -142,6 +161,7 @@ const BoardProvider = ({ children }) => {
   };
 
   const boardMouseDownHandler = (event, toolboxState) => {
+    if (boardState.toolActionType === TOOL_ACTION_TYPES.WRITING) return;
     const { clientX, clientY } = event;
     console.log(clientX, clientY);
     if (boardState.activeToolItem === TOOL_ITEMS.ERASER) {
@@ -166,6 +186,7 @@ const BoardProvider = ({ children }) => {
   };
 
   const boardMouseMoveHandler = (event) => {
+    if (boardState.toolActionType === TOOL_ACTION_TYPES.WRITING) return;
     const { clientX, clientY } = event;
     console.log(clientX, clientY);
     if (boardState.toolActionType === TOOL_ACTION_TYPES.ERASING) {
@@ -190,8 +211,20 @@ const BoardProvider = ({ children }) => {
   };
 
   const boardMouseUpHandler = (event) => {
+    if (boardState.toolActionType === TOOL_ACTION_TYPES.WRITING) return;
     dispatchBoardAction({
       type: BOARD_ACTIONS.DRAW_UP,
+    });
+  };
+
+  const textAreaBlurHandler = (text) => {
+    console.log("blur called");
+    console.log(text);
+    dispatchBoardAction({
+      type: BOARD_ACTIONS.CHANGE_TEXT,
+      payload: {
+        text,
+      },
     });
   };
 
@@ -203,6 +236,7 @@ const BoardProvider = ({ children }) => {
     changeToolHandle,
     boardMouseMoveHandler,
     boardMouseUpHandler,
+    textAreaBlurHandler,
   };
   return (
     <boardContext.Provider value={boardContextValue}>

@@ -33,3 +33,4 @@ export const getArrowHeadsCoordinates = (x1, y1, x2, y2, arrowLength) => {
     const dy = y2 - y1;
     return Math.sqrt(dx * dx + dy * dy);
   };
+

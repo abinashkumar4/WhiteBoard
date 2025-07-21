@@ -69,6 +69,14 @@ export const Toolbar = () => {
       >
         <FaEraser />
       </div>
+      <div
+        className={cname(classes.toolItem, {
+          [classes.active]: activeToolItem === TOOL_ITEMS.TEXT,
+        })}
+        onClick={() => changeToolHandle(TOOL_ITEMS.TEXT)}
+      >
+        <FaFont />
+      </div>
     </div>
   );
 };
