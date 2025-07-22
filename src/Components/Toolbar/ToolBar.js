@@ -15,9 +15,16 @@ import {
 import { LuRectangleHorizontal } from "react-icons/lu";
 import boardContext from "../../store/board-context";
 import { TOOL_ITEMS } from "../../../constants";
+import { downloadCanvasAsJPEGWithWhiteBg } from "../../utils/download";
 
 export const Toolbar = () => {
-  const { activeToolItem, changeToolHandle } = useContext(boardContext);
+  const { activeToolItem, changeToolHandle,undo,redo } = useContext(boardContext);
+
+  const handleDownloadClick = () => {
+    //const canvas = document.getElementById("canvas");
+    downloadCanvasAsJPEGWithWhiteBg("canvas", "my_drawing.jpeg");
+    
+  };
   return (
     <div className={classes.container}>
       <div
@@ -76,6 +83,15 @@ export const Toolbar = () => {
         onClick={() => changeToolHandle(TOOL_ITEMS.TEXT)}
       >
         <FaFont />
+      </div>
+      <div className={classes.toolItem} onClick={undo}>
+        <FaUndoAlt />
+      </div>
+      <div className={classes.toolItem} onClick={redo}>
+        <FaRedoAlt />
+      </div>
+      <div className={classes.toolItem} onClick={handleDownloadClick}>
+        <FaDownload />
       </div>
     </div>
   );
